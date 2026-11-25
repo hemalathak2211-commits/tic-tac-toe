@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tic-Tac-Toe Game</title>
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #0B2E1A;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    color: #fff;
+  }
+  .game { width: 100%; max-width: 420px; text-align: center; }
+  h1 { color: #00FF88; font-size: 30px; margin: 20px 0; }
+  #turn { font-size: 19px; font-weight: bold; color: #00FF88; margin: 10px 0; }
+  #score { font-size: 14px; font-weight: bold; margin: 5px 0; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 25px auto;
+    max-width: 330px;
+  }
+  .cell {
+    aspect-ratio: 1 / 1;
+    font-size: 48px;
+    font-weight: bold;
+    background: #164A2A;
+    color: #fff;
+    border: 3px solid #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0;
+  }
+  .cell:hover { background: #267A45; }
+  #winner { font-size: 20px; font-weight: bold; min-height: 28px; margin: 10px 0; }
+  #newBtn {
+    background: #228B45;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 14px 0;
+    width: 220px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  #newBtn:hover { background: #2FAF5D; }
+</style>
+</head>
+<body>
+  <div class="game">
+    <h1>🎮 TIC-TAC-TOE</h1>
+    <div id="turn">Player X's Turn</div>
+    <div id="score">X: 0 &nbsp;|&nbsp; O: 0 &nbsp;|&nbsp; Draws: 0</div>
+
+    <div class="board" id="board"></div>
+
+    <div id="winner"></div>
+    <button id="newBtn" onclick="resetGame()">🔄 NEW GAME</button>
+  </div>
+
+<script>
+  const COLORS = { X: '#00FF88', O: '#FFD166' };
+  let currentPlayer = 'X';
+  let gameOver = false;
+  let cells = [];
+  const scores = { X: 0, O: 0, Draw: 0 };
+
+  const board = document.getElementById('board');
+  const turnLabel = document.getElementById('turn');
+  const scoreLabel = document.getElementById('score');
+  const winnerLabel = document.getElementById('winner');
+
+  // Build the 3x3 board
+  for (let i = 0; i < 9; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'cell';
+    btn.onclick = () => cellClick(i);
+    board.appendChild(btn);
+    cells.push(btn);
+  }
+
+  function cellClick(i) {
+    if (gameOver || cells[i].textContent !== '') return;
+
+    cells[i].textContent = currentPlayer;
+    cells[i].style.color = COLORS[currentPlayer];
+
+    if (checkWinner()) {
+      winnerLabel.textContent = '🎉 Player ' + currentPlayer + ' Wins!';
+      winnerLabel.style.color = '#00FF88';
+      scores[currentPlayer]++;
+      updateScore();
+      gameOver = true;
+      setTimeout(() => {
+        alert('Player ' + currentPlayer + ' wins!\n\nClick OK to start the next game.');
+        resetGame();
+      }, 100);
+      return;
+    }
+
+    if (checkDraw()) {
+      winnerLabel.textContent = "🤝 It's a Draw!";
+      winnerLabel.style.color = '#FFFFFF';
+      scores.Draw++;
+      updateScore();
+      gameOver = true;
+      setTimeout(() => {
+        alert("It's a Draw!\n\nClick OK to start the next game.");
+        resetGame();
+      }, 100);
+      return;
+    }
+
+    // Switch player
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    turnLabel.textContent = "Player " + currentPlayer + "'s Turn";
+    turnLabel.style.color = COLORS[currentPlayer];
+  }
+
+  function checkWinner() {
+    const lines = [
+      [0,1,2],[3,4,5],[6,7,8],   // rows
+      [0,3,6],[1,4,7],[2,5,8],   // columns
+      [0,4,8],[2,4,6]            // diagonals
+    ];
+    return lines.some(([a, b, c]) =>
+      cells[a].textContent !== '' &&
+      cells[a].textContent === cells[b].textContent &&
+      cells[b].textContent === cells[c].textContent
+    );
+  }
+
+  function checkDraw() {
+    return cells.every(c => c.textContent !== '');
+  }
+
+  function updateScore() {
+    scoreLabel.innerHTML =
+      'X: ' + scores.X + ' &nbsp;|&nbsp; O: ' + scores.O +
+      ' &nbsp;|&nbsp; Draws: ' + scores.Draw;
+  }
+
+  function resetGame() {
+    currentPlayer = 'X';
+    gameOver = false;
+    cells.forEach(c => { c.textContent = ''; c.style.color = '#FFFFFF'; });
+    turnLabel.textContent = "Player X's Turn";
+    turnLabel.style.color = COLORS.X;
+    winnerLabel.textContent = '';
+  }
+</script>
+</body>
+</html>
